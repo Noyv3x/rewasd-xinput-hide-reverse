@@ -1,0 +1,43 @@
+;
+; HideFilter-NDIS.inf  --  Optional NDIS Lightweight Filter for the
+; Xbox One Wireless Adapter (media type "xboxwirelessinput").
+;
+; Most users do NOT need this. Only relevant if your target hardware is the
+; Xbox One Wireless Adapter dongle and you want to hide controllers paired
+; through it from XInput.
+;
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = NetService
+ClassGUID   = {4D36E974-E325-11CE-BFC1-08002BE10318}
+Provider    = %Vendor%
+DriverVer   = 01/01/2026,1.0.0.0
+CatalogFile = HideFilter-NDIS.cat
+PnpLockdown = 1
+
+[Manufacturer]
+%Vendor% = Vendor, NTamd64
+
+[Vendor.NTamd64]
+%DisplayName% = Install, HideFilter_NDIS
+
+[Install.NTamd64]
+AddReg           = Ndi_Reg
+Characteristics  = 0x40000                  ; NCF_LW_FILTER (Lightweight Filter)
+NetCfgInstanceId = "{REPLACE-WITH-YOUR-GUID}"
+
+[Ndi_Reg]
+HKR, Ndi,Service,,"HideFilter"
+HKR, Ndi,CoServices,0x00010000,"HideFilter"
+HKR, Ndi,HelpText,,%DisplayName%
+HKR, Ndi,FilterClass,,custom
+HKR, Ndi,FilterType,0x00010001,2            ; FILTER_TYPE_MODIFYING
+HKR, Ndi\Interfaces,UpperRange,,"noupper"
+HKR, Ndi\Interfaces,LowerRange,,"nolower"
+HKR, Ndi\Interfaces, FilterMediaTypes,,"xboxwirelessinput"
+HKR, Ndi,FilterRunType,0x00010001, 2        ; FILTER_RUN_TYPE_OPTIONAL
+
+[Strings]
+DisplayName = "XInput Hide NDIS Filter"
+Vendor      = "YourVendorHere"

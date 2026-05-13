@@ -1,0 +1,63 @@
+;
+; HideFilter.inf  --  Lower-filter driver for hiding XInput / GIP physical controllers.
+;
+; Install with:
+;   pnputil /add-driver HideFilter.inf /install
+; Then the user-mode installer adds "HideFilter" to LowerFilters of the five
+; target device classes and restarts affected devices.
+;
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = System
+ClassGUID   = {4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider    = %Vendor%
+DriverVer   = 01/01/2026,1.0.0.0
+CatalogFile = HideFilter.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12                          ; %WINDIR%\System32\drivers
+
+[SourceDisksNames.amd64]
+1 = %DisplayName%
+
+[SourceDisksFiles.amd64]
+HideFilter.sys = 1
+
+[Manufacturer]
+%Vendor% = Vendor, NTamd64
+
+[Vendor.NTamd64]
+%DisplayName% = Install, root\HideFilter
+
+[Install.NTamd64]
+CopyFiles = Drivers_Dir
+
+[Install.NTamd64.HW]
+AddReg = Security_Reg
+
+[Security_Reg]
+HKR,,DeviceCharacteristics,0x10001,0x0100     ; FILE_DEVICE_SECURE_OPEN
+HKR,,Security,,"D:P(A;;GA;;;SY)(A;;GR;;;BA)(A;;GR;;;WD)(A;;GR;;;RC)"
+;  SYSTEM: full     Admin: read   Everyone: read   Restricted: read
+
+[Install.NTamd64.Services]
+AddService = HideFilter, 2, Service_Inst       ; SPSVCINST_ASSOCSERVICE
+
+[Service_Inst]
+DisplayName    = %DisplayName%
+Description    = %Description%
+ServiceType    = 1                             ; SERVICE_KERNEL_DRIVER
+StartType      = 0                             ; SERVICE_BOOT_START  -- MANDATORY
+ErrorControl   = 1                             ; SERVICE_ERROR_NORMAL
+LoadOrderGroup = Filter                        ; MANDATORY
+ServiceBinary  = %12%\HideFilter.sys
+
+[Drivers_Dir]
+HideFilter.sys
+
+[Strings]
+DisplayName = "Hide Filter Driver"
+Description = "Lower-filter for hiding physical Xbox controllers"
+Vendor      = "YourVendorHere"
